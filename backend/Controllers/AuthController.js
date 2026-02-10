@@ -1,65 +1,34 @@
-import UserModel from '../Models/User.js';
-import bcrypt from 'bcrypt';
+import Student from "../Models/Student.js";
+import jwt from "jsonwebtoken"
+import bcrypt from "bcryptjs"
 
-/**
- * Role-Based Login Controller
- * Authenticates user by verifying:
- * - Name
- * - Email
- * - Password
- * - Role
- */
-const login = async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body;
+export async function authRequest(req,res){
+  const {email,password} = req.body;
 
-    // Step 1: Find user by email and role (ensure role matches)
-    const user = await UserModel.findOne({ email, role });
+  const lowerEmail = email.toLowerCase();
 
-    if (!user) {
-      return res.status(401).json({
-        message: 'Authentication failed. Invalid email, role, or user does not exist.',
-        success: false,
-      });
-    }
+  console.log("Login attempt for email:", lowerEmail);
 
-    // Step 2: Verify name matches
-    if (user.name !== name) {
-      return res.status(401).json({
-        message: 'Authentication failed. Name does not match.',
-        success: false,
-      });
-    }
+  const student = await Student.findOne({email: lowerEmail});
 
-    // Step 3: Verify password using bcrypt
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+  console.log("Student found:", !!student);
 
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        message: 'Authentication failed. Password is incorrect.',
-        success: false,
-      });
-    }
-
-    // Step 4: All checks passed - return success
-    return res.status(200).json({
-      message: 'Login successful',
-      success: true,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({
-      message: 'Internal server error',
-      success: false,
-      error: error.message,
-    });
+  if(!student){
+    return res.status(404).json({message: "Student not Found"});
   }
-};
 
-export { login };
+  const isMatch = await bcrypt.compare(password, student.password);
+
+  if(!isMatch){
+    return res.status(401).json("Invalid Credentials");
+  }
+
+  const token = jwt.sign({
+    id: student._id, 
+    role: "student"
+  },
+  process.env.JWT_SECRET, {expiresIn: "1d"}
+);
+
+res.json({token});
+};

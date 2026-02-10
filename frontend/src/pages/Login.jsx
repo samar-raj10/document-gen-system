@@ -1,14 +1,50 @@
 import "../styles/Login.css"
 import logo from "../assets/muj-logo.png"
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 
 export default function Login() {
 
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
 
-   const handleLogin = (e) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate("/home");
+    console.log("Form Data: ", formData);
+     console.log("JSON stringified: ", JSON.stringify(formData));
+    try {
+      const res = await fetch("http://localhost:8080/api/student/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      console.log("Response status: ", res.status);
+      const data = await res.json();
+      console.log("Response Data: ", data);
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", "student");
+        navigate("/home");
+      } else {
+        alert(data.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed. Please try again.");
+    }
   };
   return (
     <>
@@ -45,6 +81,8 @@ export default function Login() {
                   type="email"
                   required
                   autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   className="block w-full rounded-md bg-blue-100 px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
                 />
               </div>
@@ -68,6 +106,8 @@ export default function Login() {
                   type="password"
                   required
                   autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleChange}
                   className="block w-full rounded-md bg-blue-100 px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
                 />
               </div>
@@ -81,6 +121,7 @@ export default function Login() {
                 Sign in
               </button>
             </div>
+            <div className="text-sm"><Link to={"/signup"} className="font-semibold text-black hover:text-amber-600">Don't have an account ? Sign up here</Link></div>
           </form>
 
           

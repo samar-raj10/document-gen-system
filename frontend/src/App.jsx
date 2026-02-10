@@ -6,13 +6,19 @@ import { Bonafide } from "./pages/Bonafide";
 import { Nodues } from "./pages/Nodues";
 import { Character } from "./pages/Character";
 import { Profile } from "./pages/Profile";
+import { AdminDashboard } from "./pages/AdminDashboard";
 import Layout from "./components/Layout";
+import Signup from "./pages/Signup.jsx";
 
 function App() {
   return (
     <Routes>
       {/* Login Route - No Layout/Sidebar */}
       <Route path="/" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      {/* Admin Dashboard - Separate Layout */}
+      <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
       {/* Authenticated Routes - With Layout/Sidebar */}
       <Route element={<Layout />}>

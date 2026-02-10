@@ -1,13 +1,17 @@
 import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema;
 
-const UserSchema = new Schema(
+const StudentSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
       trim: true,
+    },
+    reg_no: {
+      type: String,
+      required: true,
+      unique: true,
     },
     email: {
       type: String,
@@ -22,15 +26,13 @@ const UserSchema = new Schema(
     },
     role: {
       type: String,
-      required: true,
-      enum: ['student', 'faculty', 'hod', 'coordinator', 'admin'],
       default: 'student',
     },
   },
   { timestamps: true }
 );
 
-const UserModel = mongoose.model('User', UserSchema);
+const Student = mongoose.model('Student', StudentSchema);
 
-export default UserModel;
+export default Student;
 
