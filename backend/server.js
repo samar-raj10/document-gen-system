@@ -5,6 +5,8 @@ import cors from "cors";
 import process from "process";
 import CertificateRequestRoutes from "./Routes/CertificateRequestRoutes.js";
 import AdminRouter from "./Routes/AdminRouter.js";
+import AuthRoutes from "./Routes/AuthRoutes.js";
+import userRoutes from "./Routes/userRoutes.js";
 import "./config/db.js";
 import { connectDB } from "./config/db.js";
 
@@ -24,6 +26,8 @@ app.use(express.json());
 // Routes
 app.use("/api/student", CertificateRequestRoutes);
 app.use("/api/admin", AdminRouter);
+app.use("/api/auth", AuthRoutes);
+app.use("/api/users", userRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
